@@ -2,13 +2,14 @@
 
 var NB_RAMPES = 8;			//nb rampe to manage
 var SERVER_PORT = 8989;		//http port
-var TEMP_VENTILO = 20;		//T° to set ON ventillo
-var TEMP_ATTENUATION = 25;	//T° to set attenuation ON
-var ATTENUATION_SCALE = 10;		//attenuation factor = -10%
+var TEMP_FAN = 20;		//T° to set ON fan
+var TEMP_ATTENUATION = 23.5;	//T° to set attenuation ON
+var ATTENUATION_SCALE = 5;		//attenuation factor = -10%
 var CHECK_PERIOD = 10;		//check period in seconds
 var ON = 0;					//relay card inverse ?
 var OFF = 1;				//relay card inverse ?
-var DEBUG = 1;				//debug mode
+var DEBUG = 0;				//debug mode
+var LOG = 1;				//log mode
 var TPS = [					// Time Periods definition
 	{ hour: '08:00', blue:   0, white:   0 },
 	{ hour: '10:00', blue:  10, white:  20 },
@@ -60,7 +61,7 @@ var sensor = require('ds18x20');					//https://www.npmjs.com/package/ds18x20
 var rampeSensors = sensor.list();
 if (DEBUG) { console.log('T° Sensors Adr', rampeSensors); }
 var allRampeT = sensor.get(rampeSensors);			//sync
-if (DEBUG) { console.log('All T°', allRampeT); }
+if (LOG) { console.log('All T°', allRampeT); }
 
 //End Required libraries ----------------------------------
 
@@ -79,13 +80,13 @@ var getRampeT = function(sensorAdr) {
 
 //manage relay
 function setRelay(num, state) {
-	if (DEBUG) { console.log("setRelay n°"+num+" => "+state); }
+	//if (DEBUG) { console.log("setRelay n°"+num+" => "+state); }
 	actual = gpioRelay[num-1].readSync();
 	if ( actual != state ) {
-		if (DEBUG) { console.log("relay "+num+"("+actual+") changing to "+state); }
+		if (DEBUG) { console.log("setRelay "+num+"("+actual+") changing to "+state); }
 		gpioRelay[num-1].writeSync(state);
 	} else {
-		if (DEBUG) { console.log("relay "+num+"("+actual+") already "+state); }
+		if (DEBUG) { console.log("setRelay "+num+"("+actual+") already "+state); }
 	}
 }
 
@@ -125,6 +126,7 @@ function manageWebRelaySwitch(socket, num) {
 //manage % with slider & socket
 function manageWebLed(socket, pwm, num) {
 	var brightness = 0;
+	var pwm_bright = 4095 - brightness * 4095 / 100;
 	var ledName = 'led'+num; 	// led n°pwm
 	socket.on(ledName, function(data) {
 		brightness = data.value;		
@@ -134,8 +136,8 @@ function manageWebLed(socket, pwm, num) {
         if (DEBUG) { console.log(num+'-web) brightness='+brightness+'% pwm='+pwm_bright); }
 		io.sockets.emit(ledName, {value: brightness});	
 	});	
-	if (DEBUG) { console.log(num+'-web-init) brightness='+brightness+'% pwm='+pwm_bright); }
-	socket.emit(ledName, {value: brightness});	
+	//if (DEBUG) { console.log(num+'-web-init) brightness='+brightness+'% pwm='+pwm_bright); }
+	//socket.emit(ledName, {value: brightness});	
 }
 function manageWebRampe(socket, pwm, num) {
 	//rampe n°1 = pwm 1 & pwm 2		//rampe n°2 = pwm 3 & pwm 4	//...	//rampe n°8 = pwm 15 & pwm 16
@@ -161,13 +163,13 @@ function manageWebRampeRatio(socket, num, ratio, rampeInfos) {
 
 //get ratio pwm for 1 specific hour
 function getPwm(hour) {	
-	if (DEBUG) { console.log("Looking for TP (" + hour + ") -----------------"); }
+	if (LOG) { console.log("Looking for TP (" + hour + ") -----------------"); }
 	var rampe_pwm = { blue: -1, white: -1};
 	if ( !(TPS[0].hour < hour && hour < TPS[TPS.length-1].hour) ) {	//hour is in implicit period (night)
 		tp1 = TPS[TPS.length-1];
 		tp2 = TPS[0];
 		if (DEBUG) { console.log( 'night: ' + hour + " (" + TPS[TPS.length-1].hour + "-" + TPS[0].hour +")" ); }
-		if (DEBUG) { console.log('TP1-TP2', tp1, tp2 ); }
+		if (LOG) { console.log('TP1-TP2', tp1, tp2 ); }
 		var ratio = ratioPwm(tp1, tp2, hour);
 	} else {	//find hour in TPS
 		for( i = 0; i < TPS.length-1; i++ ) {
@@ -175,7 +177,7 @@ function getPwm(hour) {
 			tp2 = TPS[i+1];
 			if ( tp1.hour <= hour  && hour < tp2.hour) {
 				if (DEBUG) { console.log( tp1.hour + " <= " + hour + " < " + tp2.hour); }
-				if (DEBUG) { console.log( 'TP1-TP2', tp1, tp2 ); }
+				if (LOG) { console.log( 'TP1-TP2', tp1, tp2 ); }
 				var ratio = ratioPwm(tp1, tp2, hour);
 			}
 		}
@@ -230,10 +232,10 @@ function ratioPwm(tp1, tp2, hour) {
 
 	//ratio 1 min = % increase/decrease by minute
 	ratio_1min = {
-			blue: (tp2.blue-tp1.blue)/duree_tp * 100,
-			white: (tp2.white-tp1.white)/duree_tp * 100,
+			blue: Math.round( (tp2.blue-tp1.blue)/duree_tp * 100 ),
+			white: Math.round( (tp2.white-tp1.white)/duree_tp * 100 ),
 	}	
-	if (DEBUG) { console.log( "TP:" + duree_tp ); console.log( "Hour:" + duree_hour ); console.log( ratio_1min ); }
+	if (DEBUG) { console.log( "TP:" + duree_tp ); console.log( "Hour:" + duree_hour + " min"); console.log( ratio_1min ); }
 
 	//ratio in %
 	ratio = { 
@@ -260,15 +262,16 @@ function manageAutoAllRampes() {
 
 		var tempRampe = getRampeT( rampeSensors[i-1] );
 		//switch ventilo on/off ?
-		if ( tempRampe >= TEMP_VENTILO) {
+		if ( tempRampe >= TEMP_FAN) {
 			relay = ON;
 		} else {
 			relay = OFF;
 			attenuationLoop[i]=0;
 		}
-		if (DEBUG) { console.log("T° rampe n°"+i+": T° rampe:"+tempRampe+" (max:"+TEMP_VENTILO+") Ventilo: "+relay); }
+		if (DEBUG) { console.log("Relay T° rampe n°"+i+": T° rampe:"+tempRampe+" (max:"+TEMP_FAN+") Ventilo: "+relay); }
 		setRelay(i, relay);
 
+		if (LOG) { console.log(attenuationLoop);}
 		//attenuation needed ?
 		if ( tempRampe >= TEMP_ATTENUATION) {
 			attenuationLoop[i]++;
@@ -281,9 +284,11 @@ function manageAutoAllRampes() {
 			new_ratio = { blue: Math.round(ratio.blue * attenuationFactor), white: Math.round(ratio.white * attenuationFactor) }; 	//attenuation -10% x nbre fois check
 		} else {
 			new_ratio = ratio;
+			attenuationLoop[i] = 0;		//reinit
 		}
-		if (DEBUG) { console.log("T° rampe n°"+i+": T° rampe:"+tempRampe+" (max:"+TEMP_ATTENUATION+") Attenuation: "+attenuation+"%"); }
+		if (DEBUG) { console.log("Atten T° rampe n°"+i+": T° rampe:"+tempRampe+" (max:"+TEMP_ATTENUATION+") Attenuation: "+attenuation+"%"); }
 		if (DEBUG) { console.log('Ratio new',new_ratio); }
+		if (LOG) { console.log("T° rampe n°"+i+": "+tempRampe+"° Fan: "+relay+" ("+TEMP_FAN+"°) Atten.: "+attenuation+"% ("+TEMP_ATTENUATION+"°)");  }
 		//set pwm & socket web
 		setPwmRampe(pwm, i, new_ratio);
 
@@ -304,18 +309,16 @@ if (DEBUG) { console.log('Init Ratio', ratio); }
 //every minute
 setInterval(function() {
 	ratio = manageAutoAllRampes();
-	if (DEBUG) { console.log('Ratio', ratio); }
+	if (DEBUG) { console.log('setInterval Ratio', ratio); }
 }, CHECK_PERIOD * 1000); // 60 * 1000 milsec
-if (DEBUG) { console.log("Running every "+CHECK_PERIOD+" seconds"); }
+if (LOG) { console.log("Running every "+CHECK_PERIOD+" seconds"); }
 
 //on socket ready
 io.sockets.on('connection', function (socket) {
 	if (DEBUG) { console.log('Socket connection'); }
-	//manageWebLed(socket, pwm, 1);
-	//manageWebLed(socket, pwm, 2);
 	for (var i=1; i <= NB_RAMPES; i++) {		//8 rampes
 		manageWebRampe(socket, pwm, i);			//manual
-		manageWebRampeRatio(socket, i, ratio, {temp:0, relay:0, attenuation:0, infos:"waiting for data ..."});	//auto
+		//manageWebRampeRatio(socket, i, ratio, {temp:0, relay:0, attenuation:0, infos:"waiting for data ..."});	//auto
 		manageWebRelaySwitch(socket, i);
 	}
 });

@@ -271,7 +271,7 @@ function manageAutoAllRampes() {
 		if (DEBUG) { console.log("Relay T° rampe n°"+i+": T° rampe:"+tempRampe+" (max:"+TEMP_FAN+") Ventilo: "+relay); }
 		setRelay(i, relay);
 
-		if (LOG) { console.log(attenuationLoop);}
+		if (DEBUG) { console.log(attenuationLoop);}
 		//attenuation needed ?
 		if ( tempRampe >= TEMP_ATTENUATION) {
 			attenuationLoop[i]++;

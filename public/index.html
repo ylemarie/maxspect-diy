@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+	<title>LED Controller</title>
+	<meta name="viewport" content="width=400" />
+	
+	<script src="socket.io/socket.io.js"></script>
+	<link rel="stylesheet" href="slider.css">
+	<link rel="stylesheet" href="yle.css">
+	<style>
+	body {
+		color: white;
+	}
+	</style>
+
+  </head>
+  <body>
+    <div id='infos'>xxx</div>
+	<script type="text/javascript">		
+		var socket = io.connect();
+		var ON = 0;		//relay card inverse ?
+		var OFF = 1;	//relay card inverse ?
+		var DEBUG = 1;	//Debug
+
+		function buildSliderRampe(num) {
+			document.write(' \
+			<div class="blocRampe"> \
+				<div class="blocNum">['+num+']</div> \
+				<div class="blocTemp"> \
+					<img src="thermometer.png"/> \
+					<span id="temp'+num+'">xx</span> \
+				</div> \
+				<div class="blocRelay"> \
+					<image src="fan.png" id="relay'+num+'"> \
+					<input type="image" id="relayswitch'+num+'" value="xxx" src="on.jpg" onclick="switchRelay('+num+',this.value)"> \
+				</div> \
+				<div class="blocAtten"> \
+					<img src="atten-off.png" id="attenuationImg'+num+'"/> \
+					<span id="attenuation'+num+'">xxx</span> \
+				</div> \
+				<div class="blocSlider"> \
+					<div class="blocCanal">	\
+						<span id="outputText'+(2*num-1)+'">xx</span><span>% </span>	\
+						<input type="range" id="inputSlider'+(2*num-1)+'" min="0" max="100" value="50" step="5" oninput="showSlider('+(2*num-1)+',this.value)" /> \
+					</div> \
+					<div class="blocCanal">	\
+						<span id="outputText'+(2*num)+'">xx</span><span>% </span> \
+						<input class="white" type="range" id="inputSlider'+(2*num)+'" min="0" max="100" value="50" step="5" oninput="showSlider('+(2*num)+',this.value)" /> \
+					</div> \
+				</div> \
+			</div> \
+			');
+		}
+
+		function showSlider(num, newValue) {
+			socket.emit('led'+num, { value: newValue });
+		}
+
+		function socketSlider(num) {
+			socket.on('led'+(2*num-1), function (data) {
+				document.getElementById( "inputSlider" + (2*num-1) ).value = data.value;
+				document.getElementById( "outputText" + (2*num-1) ).innerHTML = data.value;
+			});
+			socket.on('led'+(2*num), function (data) {
+				document.getElementById( "inputSlider" + (2*num) ).value = data.value;
+				document.getElementById( "outputText" + (2*num) ).innerHTML = data.value;
+			});
+		}
+
+		function switchRelay(num, value) {
+			if (DEBUG) { console.log('switchRelay('+num+','+value+")"); }
+			socket.emit('relayswitch'+num, { state: value} );
+		}
+
+		function socketSwitchRelay(num) {
+			socket.on('relayswitch'+num, function(data) {
+				if (DEBUG) { console.log( "socketSwitchRelay("+num+") socket ON data.state="+data.state); }
+				if (data.state==OFF) {
+					if (DEBUG) { console.log("socketSwitchRelay fan off"); }
+					document.getElementById( "relay" + num ).src = "fan-off.png";
+					document.getElementById( "relayswitch" + num ).value = 0;
+					document.getElementById( "relayswitch" + num ).src = "off.jpg";
+				} else {
+					if (DEBUG) { console.log("socketSwitchRelay fan on"); }
+					document.getElementById( "relay" + num ).src = "fan.png";
+					document.getElementById( "relayswitch" + num ).value = 1;
+					document.getElementById( "relayswitch" + num ).src = "on.jpg";
+				}
+			});			
+		}
+
+		function socketRampeInfos(num) {
+			socket.on('rampe'+num, function (data) {				
+				//temp
+				document.getElementById( "temp" + num ).innerHTML = data.temp + "°";
+				document.getElementById( "infos" ).innerHTML = data.infos;
+				//relay
+				if ( data.relay == OFF ) {
+					document.getElementById( "relay" + num ).src = "fan-off.png";
+					document.getElementById( "relayswitch" + num ).value = OFF;
+					document.getElementById( "relayswitch" + num ).src = "off.jpg";
+				} else {
+					document.getElementById( "relay" + num ).src = "fan.png";
+					document.getElementById( "relayswitch" + num ).value = ON;
+					document.getElementById( "relayswitch" + num ).src = "on.jpg";
+				}
+				//attennuation
+				if (data.attenuation==0) {
+					document.getElementById( "attenuationImg" + num ).src = "atten-off.png";
+					document.getElementById( "attenuation" + num ).innerHTML = "";
+				} else {
+					document.getElementById( "attenuationImg" + num ).src = "atten.png";
+					document.getElementById( "attenuation" + num ).innerHTML = data.attenuation + "%";
+				}
+			});			
+		}
+
+		//build 8 rampes
+		for (var i=1; i <= 8; i++) {
+			buildSliderRampe(i);
+			socketSlider(i);
+			socketRampeInfos(i);
+			socketSwitchRelay(i);
+		}
+	</script>
+  </body>
+</html>

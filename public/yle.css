@@ -1,0 +1,37 @@
+.blocRampe {
+	padding-bottom: 4%;
+}
+.blocNum {
+	float: left;
+    font-size: 1.5em;
+}
+.blocTemp, .blocRelay, .blocAtten {
+	float: left;
+    width: 40px;
+    height: 45px;
+}
+.blocTemp span, .blocRelay span, .blocAtten span, .blocCanal span {
+	display: block;
+    text-align: center;
+}
+.blocSlider {
+}
+.blocCanal {
+    display: flex;
+    padding: 5px;
+}
+.blocCanal span {
+	padding-right: 5px;
+}
+img, input[type=image] {
+	width: 80%;
+}
+input[type="range"] {
+	width: 100%;
+}
+#infos {
+	/*font-size: 1.1em;*/
+    background-color: rgb(172, 191, 130);
+    text-align: center;
+    color: black;	
+}

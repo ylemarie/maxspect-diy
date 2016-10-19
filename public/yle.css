@@ -26,12 +26,30 @@
 img, input[type=image] {
 	width: 80%;
 }
-input[type="range"] {
+.blocRampe input[type="range"] {
 	width: 100%;
 }
-#infos {
+#header {
 	/*font-size: 1.1em;*/
     background-color: rgb(172, 191, 130);
     text-align: center;
     color: black;	
 }
+#parameters, #home {
+    width: 20px;
+}
+.blocParamImg {
+    width: 40px;
+    height: 60px;
+    float: left;
+    clear: both;
+}
+.blocParamTxt {
+    width: 60px;
+    float: left;
+    padding-top: 5px;
+}
+#blocAllParam .blocSlider {
+    padding-top: 5px;
+}
+#atten { clear: both; }

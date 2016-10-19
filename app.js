@@ -1,16 +1,16 @@
 //Begin const ---------------------------------------------
 
-var NB_RAMPES = 8;			//nb rampe to manage
-var SERVER_PORT = 8989;		//http port
-var TEMP_FAN = 20;		//T° to set ON fan
+var NB_RAMPES = 8;				//nb rampe to manage
+var SERVER_PORT = 8989;			//http port
+var TEMP_FAN = 20;				//T° to set ON fan
 var TEMP_ATTENUATION = 23.5;	//T° to set attenuation ON
 var ATTENUATION_SCALE = 5;		//attenuation factor = -10%
-var CHECK_PERIOD = 10;		//check period in seconds
-var ON = 0;					//relay card inverse ?
-var OFF = 1;				//relay card inverse ?
-var DEBUG = 0;				//debug mode
-var LOG = 1;				//log mode
-var TPS = [					// Time Periods definition
+var CHECK_PERIOD = 3;			//check period in seconds
+var ON = 0;						//relay card inverse ?
+var OFF = 1;					//relay card inverse ?
+var DEBUG = 0;					//debug mode
+var LOG = 1;					//log mode
+var TPS = [						// Time Periods definition
 	{ hour: '08:00', blue:   0, white:   0 },
 	{ hour: '10:00', blue:  10, white:  20 },
 	{ hour: '11:00', blue:  80, white:  70 },
@@ -133,16 +133,38 @@ function manageWebLed(socket, pwm, num) {
         //brigthness de 0 a 100
         pwm_bright = 4095 - brightness * 4095 / 100;	//inverse pour LDD SureElectronic
         pwm.setPWM(num-1, 0, pwm_bright);				//pin n°num (pwm 0-15 = pin 1-16)
-        if (DEBUG) { console.log(num+'-web) brightness='+brightness+'% pwm='+pwm_bright); }
+        if (DEBUG) { console.log(num+'-webLeb) brightness='+brightness+'% pwm='+pwm_bright); }
 		io.sockets.emit(ledName, {value: brightness});	
 	});	
-	//if (DEBUG) { console.log(num+'-web-init) brightness='+brightness+'% pwm='+pwm_bright); }
+	//if (DEBUG) { console.log(num+'-webLed-init) brightness='+brightness+'% pwm='+pwm_bright); }
 	//socket.emit(ledName, {value: brightness});	
 }
 function manageWebRampe(socket, pwm, num) {
 	//rampe n°1 = pwm 1 & pwm 2		//rampe n°2 = pwm 3 & pwm 4	//...	//rampe n°8 = pwm 15 & pwm 16
 	manageWebLed(socket, pwm, 2*num-1);
 	manageWebLed(socket, pwm, 2*num);
+}
+
+//manage parameters slider & socket
+function manageWebParameters(socket, num) {
+	var paramName = 'param'+num;
+	switch (num) {
+		case 1 : paramValue = TEMP_FAN;	break;
+		case 2 : paramValue = TEMP_ATTENUATION;	break;
+		case 3 : paramValue = ATTENUATION_SCALE;	break;
+	}
+	socket.on(paramName, function(data) {
+		paramValue = data.value;
+		switch (num) {
+			case 1 : TEMP_FAN = paramValue;	break;
+			case 2 : TEMP_ATTENUATION = paramValue;	break;
+			case 3 : ATTENUATION_SCALE = paramValue;	break;
+		}		
+        if (LOG) { console.log(num+'-webPram) param='+paramValue); }
+		io.sockets.emit(paramName, {value: paramValue});	
+	});
+	if (LOG) { console.log(num+'-webParam-init) param='+paramValue); }
+	socket.emit(paramName, {value: paramValue});
 }
 
 //manage % with auto-ratio & socket
@@ -305,11 +327,15 @@ function manageAutoAllRampes() {
 //init
 var ratio = manageAutoAllRampes();
 if (DEBUG) { console.log('Init Ratio', ratio); }
+manageWebParameters(io.sockets,1);
+manageWebParameters(io.sockets,2);
+manageWebParameters(io.sockets,3);
 
 //every minute
 setInterval(function() {
 	ratio = manageAutoAllRampes();
 	if (DEBUG) { console.log('setInterval Ratio', ratio); }
+	manageWebParameters(io.sockets,1);
 }, CHECK_PERIOD * 1000); // 60 * 1000 milsec
 if (LOG) { console.log("Running every "+CHECK_PERIOD+" seconds"); }
 
@@ -321,6 +347,9 @@ io.sockets.on('connection', function (socket) {
 		//manageWebRampeRatio(socket, i, ratio, {temp:0, relay:0, attenuation:0, infos:"waiting for data ..."});	//auto
 		manageWebRelaySwitch(socket, i);
 	}
+	manageWebParameters(socket,1);
+	manageWebParameters(socket,2);
+	manageWebParameters(socket,3);
 });
 if (DEBUG) { console.log("Running web on port 8989"); }
 //End main program--- -------------------------------------

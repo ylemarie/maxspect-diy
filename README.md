@@ -74,4 +74,4 @@ Execution
 cd ~/projet/maxspect
 sudo node app.js
 
-appli web : http://<ip rapsberry>:8989
+appli web : http://ip_rapsberry:8989

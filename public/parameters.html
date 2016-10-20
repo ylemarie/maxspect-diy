@@ -12,17 +12,17 @@
 		color: white;
 	}
 	</style>
-
   </head>
   <body>
   	<div id="header">
     	<div id='infos'>Parameters settings</div>
     	<div id="menu">
+    		<input type="image" id="save" value="save" src="save.png" onclick="saveParameters(this.value)">
     		<a href="/"><img id="home" src="home.png"></a>
     	</div>
     </div>
 	<div id="blocAllParam">
-		<div class="blocParamImg">
+		<div class="blocParamImg">	<!-- param1: T° to set ON fan -->
 			<img src="fan.png">
 		</div>
 		<div class="blocParamTxt">
@@ -32,7 +32,7 @@
 			<input type="range" id="inputSlider1" min="18" max="55" value="25" step="0.1" oninput="showParam(1,this.value)" />
 		</div>
 		<div id="atten">
-			<div class="blocParamImg">
+			<div class="blocParamImg">	<!-- param2: T° to set attenuation ON -->
 				<img src="atten.png">
 			</div>
 			<div class="blocParamTxt">
@@ -41,16 +41,97 @@
 			<div class="blocSlider">
 				<input type="range" id="inputSlider2" min="18" max="60" value="25" step="0.1" oninput="showParam(2,this.value)" />
 			</div>
-			<div class="blocParamTxt">
+			<div class="blocParamTxt" style="margin-left: 40px;">	<!-- param3: attenuation factor = -10% -->
 				<span id="outputText3">xx</span><span>% </span>
 			</div>				
 			<div class="blocSlider">
 				<input type="range" id="inputSlider3" min="0" max="100" value="25" step="5" oninput="showParam(3,this.value)" />
 			</div>
 		</div>
-	</div>    
+		<div class="blocParamImg">	<!-- param4: check period in seconds -->
+			<img src="check.png">
+		</div>
+		<div class="blocParamTxt">
+			<span id="outputText4">xx</span><span> sec </span>
+		</div>
+		<div class="blocSlider">
+			<input type="range" id="inputSlider4" min="1" max="60" value="25" step="1" oninput="showParam(4,this.value)" />
+		</div>
+		
+		<label class="collapse" for="_1">others ...</label>
+  		<input id="_1" type="checkbox">
+		<div id="moreparams">
+			<div class="blocParamImg">	<!-- param5: Time Periods definition -->
+				<img src="timeperiods.png">
+			</div>
+			<div class="blocParamTxt">
+				<span id="outputText5">xx</span><span> tps</span>
+			</div>
+			<div class="blocSlider">
+				<input type="range" id="inputSlider5" min="1" max="60" value="25" step="1" oninput="showParam(5,this.value)" />
+			</div>
+			<div class="blocParamImg">	<!-- param6: nb rampe to manage -->
+				<img src="rampes.png">
+			</div>
+			<div class="blocParamTxt">
+				<span id="outputText6">xx</span><span> rampes</span>
+			</div>
+			<div class="blocSlider">
+				<input type="range" id="inputSlider6" min="1" max="10" value="8" step="1" oninput="showParam(6,this.value)" />
+			</div>
+			<div class="blocParamImg">	<!-- param7: http port -->
+				<img src="port.png">
+			</div>
+			<div class="blocParamTxt">
+				<span id="outputText7">xx</span><span> port</span>
+			</div>
+			<div class="blocSlider">
+				<input type="range" id="inputSlider7" min="8980" max="8999" value="8989" step="1" oninput="showParam(7,this.value)" />
+			</div>
+			<div class="blocParamImg">	<!-- param8: on / relay card inverse -->
+				<img src="on.png">
+			</div>
+			<div class="blocParamTxt">
+				<span id="outputText8">xx</span><span> on</span>
+			</div>
+			<div class="blocSlider">
+				<input type="range" id="inputSlider8" min="0" max="1" value="1" step="1" oninput="showParam(8,this.value)" />
+			</div>
+			<div class="blocParamImg">	<!-- param9: off / relay card inverse -->
+				<img src="off.png">
+			</div>
+			<div class="blocParamTxt">
+				<span id="outputText9">xx</span><span> off</span>
+			</div>
+			<div class="blocSlider">
+				<input type="range" id="inputSlider9" min="0" max="1" value="1" step="1" oninput="showParam(9,this.value)" />
+			</div>
+			<div class="blocParamImg">	<!-- param10: debug mode -->
+				<img src="debug.png">
+			</div>
+			<div class="blocParamTxt">
+				<span id="outputText10">xx</span><span> debug</span>
+			</div>
+			<div class="blocSlider">
+				<input type="range" id="inputSlider10" min="0" max="1" value="1" step="1" oninput="showParam(10,this.value)" />
+			</div>
+			<div class="blocParamImg">	<!-- param11: log mode -->
+				<img src="log.png">
+			</div>
+			<div class="blocParamTxt">
+				<span id="outputText11">xx</span><span> log</span>
+			</div>
+			<div class="blocSlider">
+				<input type="range" id="inputSlider11" min="0" max="1" value="1" step="1" oninput="showParam(11,this.value)" />
+			</div>
+		</div>
+	</div>
 	<script type="text/javascript">		
 		var socket = io.connect();
+
+		function saveParameters( newValue) {
+			socket.emit('save', { value: newValue });
+		}
 
 		function showParam(num, newValue) {
 			socket.emit('param'+num, { value: newValue });
@@ -63,9 +144,10 @@
 			});
 		}
 
-		socketSlider(1);
-		socketSlider(2);
-		socketSlider(3);
+		//build paarmeter
+		for (var i=1; i <= 11; i++) {
+			socketSlider(i);
+		}
 	</script>
   </body>
 </html>

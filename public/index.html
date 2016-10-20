@@ -37,7 +37,7 @@
 				</div> \
 				<div class="blocRelay"> \
 					<image src="fan.png" id="relay'+num+'"> \
-					<input type="image" id="relayswitch'+num+'" value="xxx" src="on.jpg" onclick="switchRelay('+num+',this.value)"> \
+					<input type="image" class="relayswitch" id="relayswitch'+num+'" value="xxx" src="on.png" onclick="switchRelay('+num+',this.value)"> \
 				</div> \
 				<div class="blocAtten"> \
 					<img src="atten-off.png" id="attenuationImg'+num+'"/> \
@@ -84,12 +84,12 @@
 					if (DEBUG) { console.log("socketSwitchRelay fan off"); }
 					document.getElementById( "relay" + num ).src = "fan-off.png";
 					document.getElementById( "relayswitch" + num ).value = 0;
-					document.getElementById( "relayswitch" + num ).src = "off.jpg";
+					document.getElementById( "relayswitch" + num ).src = "off.png";
 				} else {
 					if (DEBUG) { console.log("socketSwitchRelay fan on"); }
 					document.getElementById( "relay" + num ).src = "fan.png";
 					document.getElementById( "relayswitch" + num ).value = 1;
-					document.getElementById( "relayswitch" + num ).src = "on.jpg";
+					document.getElementById( "relayswitch" + num ).src = "on.png";
 				}
 			});			
 		}
@@ -103,11 +103,11 @@
 				if ( data.relay == OFF ) {
 					document.getElementById( "relay" + num ).src = "fan-off.png";
 					document.getElementById( "relayswitch" + num ).value = OFF;
-					document.getElementById( "relayswitch" + num ).src = "off.jpg";
+					document.getElementById( "relayswitch" + num ).src = "off.png";
 				} else {
 					document.getElementById( "relay" + num ).src = "fan.png";
 					document.getElementById( "relayswitch" + num ).value = ON;
-					document.getElementById( "relayswitch" + num ).src = "on.jpg";
+					document.getElementById( "relayswitch" + num ).src = "on.png";
 				}
 				//attennuation
 				if (data.attenuation==0) {

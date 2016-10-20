@@ -1,5 +1,6 @@
 //Begin const ---------------------------------------------
 
+/*
 var NB_RAMPES = 8;				//nb rampe to manage
 var SERVER_PORT = 8989;			//http port
 var TEMP_FAN = 20;				//T° to set ON fan
@@ -19,11 +20,39 @@ var TPS = [						// Time Periods definition
 	{ hour: '20:00', blue:  60, white:  50 },
 	{ hour: '24:00', blue:   0, white:  10 }
 ];
+*/
+//read parameters from json file
+var jsonfile = require('jsonfile');
+var _ = require("underscore");
+var file = 'parameters.json';
+var parameters = jsonfile.readFileSync(file);
+function getParam( pname) {
+	return _.find( parameters, {name: pname} ).value;
+}
+function getParamIdx( pname ) {
+	return _.findIndex( parameters, {name: pname} );
+}
+function setParam( pname, newValue ) {
+	parameters[ getParamIdx( pname ) ].value = newValue;
+}
+//populate "const"
+var TEMP_FAN = getParam('TEMP_FAN');					//param1: T° to set ON fan
+var TEMP_ATTENUATION = getParam('TEMP_ATTENUATION');	//param2: T° to set attenuation ON
+var ATTENUATION_SCALE = getParam('ATTENUATION_SCALE');	//param3: attenuation factor = -10%
+var CHECK_PERIOD = getParam('CHECK_PERIOD');			//param4: check period in seconds
+var TPS = getParam('TPS');								//param5: Time Periods definition
+var NB_RAMPES = getParam('NB_RAMPES');					//param6: nb rampe to manage
+var SERVER_PORT = getParam('SERVER_PORT');				//param7: http port
+var ON = getParam('ON');								//param8: on / relay card inverse ?
+var OFF= getParam('OFF');								//param9: off / relay card inverse ?
+var DEBUG = getParam('DEBUG');							//param10: debug mode
+var LOG = getParam('LOG');								//param11: log mode
+if (DEBUG) { console.log("Nbr parameters:"+parameters.length); }
 
 //global
 var attenuationLoop = [];
 for (var i=1; i <= NB_RAMPES; i++) { attenuationLoop[i]=0; }
-
+//var allParamaters = [ 'TEMP_FAN', 'TEMP_ATTENUATION', 'ATTENUATION_SCALE', 'CHECK_PERIOD', 'TPS', 'NB_RAMPES', 'SERVER_PORT', 'ON', 'OFF', 'DEBUG', 'LOG' ];
 //End const -----------------------------------------------
 
 //Begin Required libraries --------------------------------
@@ -145,26 +174,63 @@ function manageWebRampe(socket, pwm, num) {
 	manageWebLed(socket, pwm, 2*num);
 }
 
+//manage web save parameters
+function manageWebParametersSave(socket) {
+	socket.on('save', function(data) {
+		setParam( "TEMP_FAN", TEMP_FAN );
+		setParam( "TEMP_ATTENUATION", TEMP_ATTENUATION );
+		setParam( "ATTENUATION_SCALE", ATTENUATION_SCALE );
+		setParam( "CHECK_PERIOD", CHECK_PERIOD );
+		setParam( "TPS", TPS );
+		setParam( "NB_RAMPES", NB_RAMPES );
+		setParam( "SERVER_PORT", SERVER_PORT );
+		setParam( "ON", ON );
+		setParam( "OFF", OFF );
+		setParam( "DEBUG", DEBUG );
+		setParam( "LOG", LOG );
+		jsonfile.writeFileSync(file, parameters);
+		if (DEBUG) { console.log( jsonfile.readFileSync(file) ); }
+	});
+}
 //manage parameters slider & socket
 function manageWebParameters(socket, num) {
-	var paramName = 'param'+num;
+	var pName = 'param'+num;
 	switch (num) {
-		case 1 : paramValue = TEMP_FAN;	break;
-		case 2 : paramValue = TEMP_ATTENUATION;	break;
-		case 3 : paramValue = ATTENUATION_SCALE;	break;
+		case 1  : paramValue = TEMP_FAN;			break;
+		case 2  : paramValue = TEMP_ATTENUATION;	break;
+		case 3  : paramValue = ATTENUATION_SCALE;	break;
+		case 4  : paramValue = CHECK_PERIOD;		break;
+		//case 5  : paramValue = TPS;					break;
+		case 6  : paramValue = NB_RAMPES;			break;
+		case 7  : paramValue = SERVER_PORT;			break;
+		case 8  : paramValue = ON;					break;
+		case 9  : paramValue = OFF;					break;
+		case 10 : paramValue = DEBUG;				break;
+		case 11 : paramValue = LOG;					break;
 	}
-	socket.on(paramName, function(data) {
+	socket.on(pName, function(data) {
 		paramValue = data.value;
 		switch (num) {
-			case 1 : TEMP_FAN = paramValue;	break;
-			case 2 : TEMP_ATTENUATION = paramValue;	break;
-			case 3 : ATTENUATION_SCALE = paramValue;	break;
+			case 1  : TEMP_FAN = paramValue;			break;
+			case 2  : TEMP_ATTENUATION = paramValue;	break;
+			case 3  : ATTENUATION_SCALE = paramValue;	break;
+			case 4  : CHECK_PERIOD = paramValue;		break;
+			//case 5  : TPS = paramValue;					break;
+			case 6  : NB_RAMPES = paramValue;			break;
+			case 7  : SERVER_PORT = paramValue;			break;
+			case 8  : ON = paramValue;					break;
+			case 9  : OFF = paramValue;					break;
+			case 10 : DEBUG = paramValue;				break;
+			case 11 : LOG = paramValue;					break;			
+
 		}		
-        if (LOG) { console.log(num+'-webPram) param='+paramValue); }
-		io.sockets.emit(paramName, {value: paramValue});	
+        if (DEBUG) { console.log(num+'-webPram) param='+paramValue); }
+        //setParam(pName, paramValue);
+		io.sockets.emit(pName, {value: paramValue});	
 	});
-	if (LOG) { console.log(num+'-webParam-init) param='+paramValue); }
-	socket.emit(paramName, {value: paramValue});
+	//if (LOG) { console.log(num+'-webParam-init) param='+paramValue); }
+	//setParam(pName, paramValue);
+	socket.emit(pName, {value: paramValue});
 }
 
 //manage % with auto-ratio & socket
@@ -327,17 +393,30 @@ function manageAutoAllRampes() {
 //init
 var ratio = manageAutoAllRampes();
 if (DEBUG) { console.log('Init Ratio', ratio); }
-manageWebParameters(io.sockets,1);
-manageWebParameters(io.sockets,2);
-manageWebParameters(io.sockets,3);
+for ( i=1; i <= parameters.length; i++ ) {
+	manageWebParameters(io.sockets,i);
+}
+//manageWebParametersSave(io.sockets);
 
 //every minute
+/*
 setInterval(function() {
 	ratio = manageAutoAllRampes();
 	if (DEBUG) { console.log('setInterval Ratio', ratio); }
 	manageWebParameters(io.sockets,1);
+	manageWebParametersSave(io.sockets);
 }, CHECK_PERIOD * 1000); // 60 * 1000 milsec
-if (LOG) { console.log("Running every "+CHECK_PERIOD+" seconds"); }
+*/
+var check = function() {
+	if (LOG) { console.log("Running every "+CHECK_PERIOD+" seconds"); }
+	ratio = manageAutoAllRampes();
+	if (DEBUG) { console.log('setInterval Ratio', ratio); }
+	manageWebParameters(io.sockets,1);
+	manageWebParametersSave(io.sockets);
+	clearInterval( interval );				//reinit CHECK_PERIOD if modified
+	interval = setInterval( check, CHECK_PERIOD * 1000);	
+}
+var interval = setInterval( check, CHECK_PERIOD * 1000);
 
 //on socket ready
 io.sockets.on('connection', function (socket) {
@@ -347,9 +426,10 @@ io.sockets.on('connection', function (socket) {
 		//manageWebRampeRatio(socket, i, ratio, {temp:0, relay:0, attenuation:0, infos:"waiting for data ..."});	//auto
 		manageWebRelaySwitch(socket, i);
 	}
-	manageWebParameters(socket,1);
-	manageWebParameters(socket,2);
-	manageWebParameters(socket,3);
+	for ( i=1; i <= parameters.length; i++ ) {
+		manageWebParameters(socket,i);
+	}
+	manageWebParametersSave(socket);
 });
 if (DEBUG) { console.log("Running web on port 8989"); }
 //End main program--- -------------------------------------

@@ -46,16 +46,7 @@ sudo apt-get install nodejs
 mkdir -p ~/projet/maxspect/public/
 
 recopier l'arborescence :
-public/
-	atten-off.png
-	atten-on.png
-	fan-off.png
-	fan-on.png
-	index.html
-	off.jpg
-	on.jpg
-	slider.css
-	yle.css
+public/*
 
 Installation librairie ABElectronics
 ------------------------------------
@@ -64,23 +55,19 @@ git clone https://github.com/abelectronicsuk/ABElectronics_NodeJS_Libraries.git
 
 Installation modules NodeJS
 ---------------------------
-cd ~/projet/maxspect
+- cd ~/projet/maxspect
 
-npm install express
-npm install http
-npm install socket.io
-
-npm install ds18x20
-
-npm install rpio
-npm install onoff
-
-npm install moment
-npm install twix
-npm install dateformat
-
-npm install jsonfile
-npm install underscore
+- npm install express
+- npm install http
+- npm install socket.io
+- npm install ds18x20
+- npm install rpio
+- npm install onoff
+- npm install moment
+- npm install twix
+- npm install dateformat
+- npm install jsonfile
+- npm install underscore
 
 Execution
 ---------

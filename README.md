@@ -79,6 +79,9 @@ npm install moment
 npm install twix
 npm install dateformat
 
+npm install jsonfile
+npm install underscore
+
 Execution
 ---------
 cd ~/projet/maxspect

@@ -42,16 +42,16 @@ Branchements
 
 Installation
 ------------
-sudo apt-get install nodejs
-mkdir -p ~/projet/maxspect/public/
+- sudo apt-get install nodejs
+- mkdir -p ~/projet/maxspect/public/
 
-recopier l'arborescence :
-public/*
+- recopier l'arborescence :
+- public/*
 
 Installation librairie ABElectronics
 ------------------------------------
-cd ~/projet/maxspect
-git clone https://github.com/abelectronicsuk/ABElectronics_NodeJS_Libraries.git
+- cd ~/projet/maxspect
+- git clone https://github.com/abelectronicsuk/ABElectronics_NodeJS_Libraries.git
 
 Installation modules NodeJS
 ---------------------------
@@ -71,7 +71,7 @@ Installation modules NodeJS
 
 Execution
 ---------
-cd ~/projet/maxspect
-sudo node app.js
+- cd ~/projet/maxspect
+- sudo node app.js
 
 appli web : http://ip_rapsberry:8989

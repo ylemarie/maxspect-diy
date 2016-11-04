@@ -120,13 +120,21 @@
 			});			
 		}
 
-		//build 8 rampes
-		for (var i=1; i <= 8; i++) {
-			buildSliderRampe(i);
-			socketSlider(i);
-			socketRampeInfos(i);
-			socketSwitchRelay(i);
-		}
+		//build 2 rampes 450L
+		document.write('<div><span class="titreBac">450L</span>');
+		buildSliderRampe(1); socketSlider(1); socketRampeInfos(1); socketSwitchRelay(1);
+		buildSliderRampe(2); socketSlider(2); socketRampeInfos(2); socketSwitchRelay(2);
+		document.write('</div>');
+		
+		//build 1 rampe 200 L Haut
+		document.write('<div><span class="titreBac">200L Haut</span>');
+		buildSliderRampe(3); socketSlider(3); socketRampeInfos(3); socketSwitchRelay(3);
+		document.write('</div>');
+
+		//build 1 rampe 200 L Milieu
+		document.write('<div><span class="titreBac">200L Milieu</span>');
+		buildSliderRampe(4); socketSlider(4); socketRampeInfos(4); socketSwitchRelay(4);
+		document.write('</div>');
 	</script>
   </body>
 </html>

@@ -45,19 +45,16 @@ Installation
 - sudo apt-get update && sudo apt-get upgrade
 - curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
 - sudo apt-get install nodejs
-- mkdir -p ~/projet/maxspect/public/
-
-- recopier l'arborescence :
-- public/*
+- git clone https://github.com/ylemarie/maxspect-diy.git
 
 Installation librairie ABElectronics
 ------------------------------------
-- cd ~/projet/maxspect
+- cd ~/projet/maxspect-diy
 - git clone https://github.com/abelectronicsuk/ABElectronics_NodeJS_Libraries.git
 
 Installation modules NodeJS
 ---------------------------
-- cd ~/projet/maxspect
+- cd ~/projet/maxspect-diy
 
 - npm install express
 - npm install http
@@ -73,7 +70,7 @@ Installation modules NodeJS
 
 Execution
 ---------
-- cd ~/projet/maxspect
+- cd ~/projet/maxspect-diy
 - sudo node app.js
 
 appli web : http://ip_rapsberry:8989

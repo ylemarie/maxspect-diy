@@ -81,14 +81,13 @@ Problèmes
 - Ajouter dans /boot/config.txt
 	dtoverlay=w1-gpio
 - ls /sys/bus/w1/devices devrait renvoyer :
-	28-0000043adf77  
-	w1_bus_master1
+	* 28-0000043adf77  
+	* w1_bus_master1
 - Pour infos, /etC/modules contient :
-
-	w1-therm
-	w1-gpio pullup=1
-	snd-bcm2835
-	spi-bcm2708
-	i2c-bcm2708
-	i2c-dev
-	rtc-ds1307
+	* w1-therm
+	* w1-gpio pullup=1
+	* snd-bcm2835
+	* spi-bcm2708
+	* i2c-bcm2708
+	* i2c-dev
+	* rtc-ds1307

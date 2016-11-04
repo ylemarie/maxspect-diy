@@ -42,6 +42,7 @@ Branchements
 
 Installation
 ------------
+- sudo apt-get update && sudo apt-get upgrade
 - curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
 - sudo apt-get install nodejs
 - mkdir -p ~/projet/maxspect/public/

@@ -38,7 +38,9 @@ Branchements
 	TODO: refaire tests avec la carte
 
 * RaspberryPi3 :
-	Le raspberry est alimentée en 5V externe (la même) par l'intermédiare de la carte ServoPi
+	Le raspberry est alimentée en 5V externe via le port USB
+
+NB: il est préférable de brancher le RaspberryPi3 en dernier sinon il risque de ne pas détecter toutes les sondes de T°.
 
 Installation
 ------------

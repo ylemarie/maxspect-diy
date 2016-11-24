@@ -88,7 +88,28 @@ var dateFormat = require('dateformat');				//https://github.com/felixge/node-dat
 //Temperature
 var sensor = require('ds18x20');					//https://www.npmjs.com/package/ds18x20
 var rampeSensors = sensor.list();
-if (DEBUG) { console.log('T° Sensors Adr', rampeSensors); }
+/* Hardwre order
+T° Sensors Adr [ 
+  '28-031564e750ff',	=> rampe 8	=	rampeSensors[7]
+  '28-031564bed0ff',	=> rampe 5	=	rampeSensors[4]
+  '28-0315a477f2ff',	=> rampe 2	=	rampeSensors[1]
+  '28-0115a51285ff',	=> rampe 7	=	rampeSensors[6]
+  '28-0115a44ef5ff',	=> rampe 4	=	rampeSensors[3]
+  '28-0315a4d8b3ff',	=> rampe 3	=	rampeSensors[2]	(ex 1)
+  '28-021564d12bff',	=> rampe 6	=	rampeSensors[5]
+  '28-031564c09fff' 	=> rampe 1	=	rampeSensors[0]	(ex 3)
+]
+*/
+// reorganise rampeSensors vs real position
+rampeSensors[7] = '28-031564e750ff';	//rampe 8
+rampeSensors[4] = '28-031564bed0ff';	//rampe 5
+rampeSensors[1] = '28-0315a477f2ff';	//rampe 2
+rampeSensors[6] = '28-0115a51285ff';	//rampe 7
+rampeSensors[3] = '28-0115a44ef5ff';	//rampe 4
+rampeSensors[2] = '28-0315a4d8b3ff';	//rampe 3
+rampeSensors[5] = '28-021564d12bff';	//rampe 6
+rampeSensors[0] = '28-031564c09fff';	//rampe 1
+if (LOG) { console.log('T° Sensors Adr', rampeSensors); }
 var allRampeT = sensor.get(rampeSensors);			//sync
 if (LOG) { console.log('All T°', allRampeT); }
 

@@ -88,29 +88,22 @@ var dateFormat = require('dateformat');				//https://github.com/felixge/node-dat
 //Temperature
 var sensor = require('ds18x20');					//https://www.npmjs.com/package/ds18x20
 var rampeSensors = sensor.list();
+if (LOG) { console.log('T° Sensors Hardware Adr', rampeSensors); }
 /* Hardwre order
-T° Sensors Adr [ 
-  '28-031564e750ff',	=> rampe 8	=	rampeSensors[7]
-  '28-031564bed0ff',	=> rampe 5	=	rampeSensors[4]
-  '28-0315a477f2ff',	=> rampe 2	=	rampeSensors[1]
-  '28-0115a51285ff',	=> rampe 7	=	rampeSensors[6]
-  '28-0115a44ef5ff',	=> rampe 4	=	rampeSensors[3]
-  '28-0315a4d8b3ff',	=> rampe 3	=	rampeSensors[2]	(ex 1)
-  '28-021564d12bff',	=> rampe 6	=	rampeSensors[5]
-  '28-031564c09fff' 	=> rampe 1	=	rampeSensors[0]	(ex 3)
+T° Sensors Hardware Adr [ 
+  '28-0000043af7d1',	=> rampe n°4	Haut
+  '28-031564be02ff',	=> rampe n°1	450 n°1
+  '28-021564ce65ff',	=> rampe n°2	450 n°2
+  '28-0315a48b67ff' 	=> rampe n°3	Milieu
 ]
 */
 // reorganise rampeSensors vs real position
-rampeSensors[7] = '28-031564e750ff';	//rampe 8
-rampeSensors[4] = '28-031564bed0ff';	//rampe 5
-rampeSensors[1] = '28-0315a477f2ff';	//rampe 2
-rampeSensors[6] = '28-0115a51285ff';	//rampe 7
-rampeSensors[3] = '28-0115a44ef5ff';	//rampe 4
-rampeSensors[2] = '28-0315a4d8b3ff';	//rampe 3
-rampeSensors[5] = '28-021564d12bff';	//rampe 6
-rampeSensors[0] = '28-031564c09fff';	//rampe 1
-if (LOG) { console.log('T° Sensors Adr', rampeSensors); }
-var allRampeT = sensor.get(rampeSensors);			//sync
+rampeSensors[3] = '28-0000043af7d1';    //rampe 4
+rampeSensors[0] = '28-031564be02ff';    //rampe 1
+rampeSensors[1] = '28-021564ce65ff';    //rampe 2
+rampeSensors[2] = '28-0315a48b67ff';    //rampe 3
+if (LOG) { console.log('T° Sensors Reordered Adr', rampeSensors); }
+var allRampeT = sensor.get(rampeSensors);
 if (LOG) { console.log('All T°', allRampeT); }
 
 //End Required libraries ----------------------------------
@@ -284,7 +277,7 @@ function getPwm(hour) {
 		for( i = 0; i < TPS.length-1; i++ ) {
 			tp1 = TPS[i];
 			tp2 = TPS[i+1];
-			if ( tp1.hour <= hour  && hour < tp2.hour) {
+			if ( tp1.hour <= hour  && hour <= tp2.hour) {
 				if (DEBUG) { console.log( tp1.hour + " <= " + hour + " < " + tp2.hour); }
 				if (LOG) { console.log( 'TP1-TP2', tp1, tp2 ); }
 				var ratio = ratioPwm(tp1, tp2, hour);
@@ -308,7 +301,7 @@ function getTP(hour) {
 		for( i = 0; i < TPS.length-1; i++ ) {
 			tp1 = TPS[i];
 			tp2 = TPS[i+1];
-			if ( tp1.hour <= hour  && hour < tp2.hour) {
+			if ( tp1.hour <= hour  && hour <= tp2.hour) {
 				if (DEBUG) { console.log( tp1.hour + " <= " + hour + " < " + tp2.hour); }
 				if (DEBUG) { console.log( 'TP1-TP2', tp1, tp2 ); }
 				tp = {tp1, tp2};

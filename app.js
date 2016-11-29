@@ -105,22 +105,21 @@ rampeSensors[1] = '28-021564ce65ff';    //rampe 2
 rampeSensors[2] = '28-0315a48b67ff';    //rampe 3
 if (LOG) { console.log('T° Sensors Reordered Adr', rampeSensors); }
 
-if ( rampeSensorsHard.length != NB_RAMPES ) {		// missing sensors
-	//find missing sensors
-	for (i=0; i<rampeSensorsHard.length; i++) {
-		var found = false;
-		var j = 0;
-		while ( !found && j<rampeSensors.length) {
-			if ( rampeSensors[j] == rampeSensorsHard[i] ) {
-				found = true;
-			} else {
-				rampeSensors[j] = null;
-			}
+//find missing hardcoded sensors
+for (i=0; i<rampeSensorsHard.length; i++) {
+	var found = false;
+	var j = 0;
+	while ( !found && j<rampeSensors.length) {
+		if ( rampeSensors[j] == rampeSensorsHard[i] ) {
+			found = true;
+		} else {
+			rampeSensors[j] = null;
 		}
 	}
-	if (LOG) { console.log('/!\ T° Sensors Missing Adr', rampeSensors); }
 }
+if (LOG) { console.log('/!\ T° Sensors Missing Adr', rampeSensors); }
 
+//read T°
 var allRampeT = sensor.get(rampeSensors);
 if (LOG) { console.log('All T°', allRampeT); }
 

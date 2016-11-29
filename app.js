@@ -87,8 +87,8 @@ var dateFormat = require('dateformat');				//https://github.com/felixge/node-dat
 
 //Temperature
 var sensor = require('ds18x20');					//https://www.npmjs.com/package/ds18x20
-var rampeSensors = sensor.list();
-if (LOG) { console.log('T° Sensors Hardware Adr', rampeSensors); }
+var rampeSensorsHard = sensor.list();
+if (LOG) { console.log('T° Sensors Hardware Adr', rampeSensorsHard); }
 /* Hardwre order
 T° Sensors Hardware Adr [ 
   '28-0000043af7d1',	=> rampe n°4	Haut
@@ -97,12 +97,30 @@ T° Sensors Hardware Adr [
   '28-0315a48b67ff' 	=> rampe n°3	Milieu
 ]
 */
+var rampeSensors = [];
 // reorganise rampeSensors vs real position
 rampeSensors[3] = '28-0000043af7d1';    //rampe 4
 rampeSensors[0] = '28-031564be02ff';    //rampe 1
 rampeSensors[1] = '28-021564ce65ff';    //rampe 2
 rampeSensors[2] = '28-0315a48b67ff';    //rampe 3
 if (LOG) { console.log('T° Sensors Reordered Adr', rampeSensors); }
+
+if ( rampeSensorsHard.length != NB_RAMPES ) {		// missing sensors
+	//find missing sensors
+	for (i=0; i<rampeSensorsHard.length; i++) {
+		var found = false;
+		var j = 0;
+		while ( !found && j<rampeSensors.length) {
+			if ( rampeSensors[j] == rampeSensorsHard[i] ) {
+				found = true;
+			} else {
+				rampeSensors[j] = null;
+			}
+		}
+	}
+	if (LOG) { console.log('/!\ T° Sensors Missing Adr', rampeSensors); }
+}
+
 var allRampeT = sensor.get(rampeSensors);
 if (LOG) { console.log('All T°', allRampeT); }
 
@@ -112,9 +130,15 @@ if (LOG) { console.log('All T°', allRampeT); }
 
 //manage Temperature Sensors
 var getRampeT = function(sensorAdr) {
+	/*
 	try {
-		temp = sensor.get(sensorAdr);
+		temp = sensor.get(sensorAdr);	//crash if no sensor : TODO => FIX
 	} catch (err) {	//if no sensor
+		temp = 0;
+	}*/
+	if ( sensorAdr != null ) {
+		temp = sensor.get(sensorAdr);	//crash if no sensor : TODO => FIX
+	} else {
 		temp = 0;
 	}
 	if (DEBUG) {  console.log("T° of "+sensorAdr+"="+temp); }

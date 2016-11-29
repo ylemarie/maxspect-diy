@@ -106,6 +106,7 @@ rampeSensors[2] = '28-0315a48b67ff';    //rampe 3
 if (LOG) { console.log('T° Sensors Reordered Adr', rampeSensors); }
 
 //find missing hardcoded sensors
+missing = false;
 for (i=0; i<rampeSensorsHard.length; i++) {
 	var found = false;
 	var j = 0;
@@ -114,16 +115,20 @@ for (i=0; i<rampeSensorsHard.length; i++) {
 			found = true;
 		} else {
 			rampeSensors[j] = null;
+			missing = true;
 		}
 		j++;
 	}
 }
-if (LOG) { console.log('/!\ T° Sensors Missing Adr', rampeSensors); }
+if (LOG) { console.log('T° Sensors Search Missing Adr', rampeSensors); }
 
-//read T°
-var allRampeT = sensor.get(rampeSensors);
-if (LOG) { console.log('All T°', allRampeT); }
-
+if ( missing == false ) {
+	//read T°
+	var allRampeT = sensor.get(rampeSensors);
+	if (LOG) { console.log('All T°', allRampeT); }
+} else {
+	if (LOG) { console.log('Missing sensors, can\'t read T°'); }
+}
 //End Required libraries ----------------------------------
 
 //Begin managing hardware ---------------------------------

@@ -115,6 +115,7 @@ for (i=0; i<rampeSensorsHard.length; i++) {
 		} else {
 			rampeSensors[j] = null;
 		}
+		j++;
 	}
 }
 if (LOG) { console.log('/!\ T° Sensors Missing Adr', rampeSensors); }

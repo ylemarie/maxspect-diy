@@ -352,6 +352,10 @@ function ratioPwm(tp1, tp2, hour) {
 		blue:  Math.round( (ratio_1min.blue * duree_hour)/100 + tp1.blue ),
 		white: Math.round( (ratio_1min.white * duree_hour)/100 + tp1.white ) 
 	}
+	//FIX problem with round @ 2 min before tp1 => ratio < 0
+	if ( ratio.blue < 0 ) { ratio.blue = 0; }
+	if ( ratio.white < 0 ) { ratio.white = 0; }
+	if (DEBUG) { console.log( "!!! FIX ratio < 0" ); console.log( ratio ); }
 	return ratio;
 }
 

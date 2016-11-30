@@ -87,8 +87,8 @@ var dateFormat = require('dateformat');				//https://github.com/felixge/node-dat
 
 //Temperature
 var sensor = require('ds18x20');					//https://www.npmjs.com/package/ds18x20
-var rampeSensors = sensor.list();
-if (LOG) { console.log('T° Sensors Harware Adr', rampeSensors); }
+var rampeSensorsHard = sensor.list();
+if (LOG) { console.log('T° Sensors Harware Adr', rampeSensorsHard); }
 /* Hardwre order
 T° Sensors Adr [ 
   '28-031564e750ff',	=> rampe 8	=	rampeSensors[7]
@@ -101,6 +101,7 @@ T° Sensors Adr [
   '28-031564c09fff' 	=> rampe 1	=	rampeSensors[0]	(ex 3)
 ]
 */
+var rampeSensors = [];
 // reorganise rampeSensors vs real position
 rampeSensors[7] = '28-031564e750ff';	//rampe 8
 rampeSensors[4] = '28-031564bed0ff';	//rampe 5
@@ -111,9 +112,31 @@ rampeSensors[2] = '28-0315a4d8b3ff';	//rampe 3
 rampeSensors[5] = '28-021564d12bff';	//rampe 6
 rampeSensors[0] = '28-031564c09fff';	//rampe 1
 if (LOG) { console.log('T° Sensors Reordered Adr', rampeSensors); }
-var allRampeT = sensor.get(rampeSensors);			//sync
-if (LOG) { console.log('All T°', allRampeT); }
 
+//find missing hardcoded sensors
+missing = false;
+for (i=0; i<rampeSensorsHard.length; i++) {
+	var found = false;
+	var j = 0;
+	while ( !found && j<rampeSensors.length) {
+		if ( rampeSensors[j] == rampeSensorsHard[i] ) {
+			found = true;
+		} else {
+			rampeSensors[j] = null;
+			missing = true;
+		}
+		j++;
+	}
+}
+if (LOG) { console.log('T° Sensors Search Missing Adr', rampeSensors); }
+
+if ( missing == false ) {
+	//read T°
+	var allRampeT = sensor.get(rampeSensors);
+	if (LOG) { console.log('All T°', allRampeT); }
+} else {
+	if (LOG) { console.log('Missing sensors, can\'t read T°'); }
+}
 //End Required libraries ----------------------------------
 
 //Begin managing hardware ---------------------------------
@@ -352,10 +375,17 @@ function ratioPwm(tp1, tp2, hour) {
 		blue:  Math.round( (ratio_1min.blue * duree_hour)/100 + tp1.blue ),
 		white: Math.round( (ratio_1min.white * duree_hour)/100 + tp1.white ) 
 	}
+
 	//FIX problem with round @ 2 min before tp1 => ratio < 0
-	if ( ratio.blue < 0 ) { ratio.blue = 0; }
-	if ( ratio.white < 0 ) { ratio.white = 0; }
-	if (DEBUG) { console.log( "!!! FIX ratio < 0" ); console.log( ratio ); }
+	if ( ratio.blue < 0 ) { 
+		ratio.blue = 0; 
+		if (DEBUG) { console.log( "!!! FIX ratio.blue < 0", ratio ); }
+	}
+	if ( ratio.white < 0 ) { 
+		ratio.white = 0; 
+		if (DEBUG) { console.log( "!!! FIX ratio.white < 0", ratio ); }
+	}
+	
 	return ratio;
 }
 

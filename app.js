@@ -144,9 +144,11 @@ var getRampeT = function(sensorAdr) {
 	if ( sensorAdr != null ) {
 		temp = sensor.get(sensorAdr);	//crash if no sensor : TODO => FIX
 	} else {
-		temp = 0;
-	}
+		temp = TEMP_ATTENUATION-1;	//force ventilo ON
+	}	
 	if (DEBUG) {  console.log("T° of "+sensorAdr+"="+temp); }
+	if (temp==false) 
+		temp = TEMP_ATTENUATION-1;	//force ventilo ON
 	return temp;
 }
 

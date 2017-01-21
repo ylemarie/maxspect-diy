@@ -98,7 +98,7 @@ T° Sensors Adr [
   '28-0115a44ef5ff',	=> rampe 4	=	rampeSensors[3]
   '28-0315a4d8b3ff',	=> rampe 3	=	rampeSensors[2]	(ex 1)
   '28-021564d12bff',	=> rampe 6	=	rampeSensors[5]
-  '28-031564c09fff' 	=> rampe 1	=	rampeSensors[0]	(ex 3)
+  '28-0000043adf77' 	=> rampe 1	=	rampeSensors[0]	(ex 3)	GRILLEE '28-031564c09fff'
 ]
 */
 var rampeSensors = [];
@@ -110,7 +110,7 @@ rampeSensors[6] = '28-0115a51285ff';	//rampe 7
 rampeSensors[3] = '28-0115a44ef5ff';	//rampe 4
 rampeSensors[2] = '28-0315a4d8b3ff';	//rampe 3
 rampeSensors[5] = '28-021564d12bff';	//rampe 6
-rampeSensors[0] = '28-031564c09fff';	//rampe 1
+rampeSensors[0] = '28-0000043adf77';	//rampe 1
 if (LOG) { console.log('T° Sensors Reordered Adr', rampeSensors); }
 
 //find missing hardcoded sensors
@@ -147,9 +147,11 @@ var getRampeT = function(sensorAdr) {
 	try {
 		temp = sensor.get(sensorAdr);
 	} catch (err) {	//if no sensor
-		temp = 0;
+		temp = TEMP_ATTENUATION-1;	//force ventilo ON
 	}
 	if (DEBUG) {  console.log("T° of "+sensorAdr+"="+temp); }
+	if (temp==false) 
+		temp = TEMP_ATTENUATION-1;	//force ventilo ON
 	return temp;
 }
 

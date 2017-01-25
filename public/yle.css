@@ -62,8 +62,17 @@ img, input[type=image] {
     clear: both; 
 }
 div#infos {
-    margin: 0 30px;
+}
+span#infos1, span#infos2, span#infos3, span#infos4 {
     margin-bottom: 5px;
+    margin-right: auto;
+    margin-left: auto;
+    width: 300px;
+    display: block;
+    background-color: #54a3a3;
+    padding: 3px;
+    text-align: center;
+    font-size: 0.75em;
 }
 div#menu {
     position: absolute;
@@ -88,4 +97,8 @@ div#menu {
 }
 #save {
     width: 20px;
+}
+.titreBac{
+    font-size: 1.5em;
+}
 }

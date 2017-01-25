@@ -40,7 +40,7 @@ var TEMP_FAN = getParam('TEMP_FAN');					//param1: T° to set ON fan
 var TEMP_ATTENUATION = getParam('TEMP_ATTENUATION');	//param2: T° to set attenuation ON
 var ATTENUATION_SCALE = getParam('ATTENUATION_SCALE');	//param3: attenuation factor = -10%
 var CHECK_PERIOD = getParam('CHECK_PERIOD');			//param4: check period in seconds
-var TPS = getParam('TPS');								//param5: Time Periods definition
+//var TPS = getParam('TPS');								//param5: Time Periods definition
 var NB_RAMPES = getParam('NB_RAMPES');					//param6: nb rampe to manage
 var SERVER_PORT = getParam('SERVER_PORT');				//param7: http port
 var ON = getParam('ON');								//param8: on / relay card inverse ?
@@ -51,7 +51,13 @@ if (DEBUG) { console.log("Nbr parameters:"+parameters.length); }
 
 //global
 var attenuationLoop = [];
-for (var i=1; i <= NB_RAMPES; i++) { attenuationLoop[i]=0; }
+var all_TPS = [];
+for (var i=1; i <= NB_RAMPES; i++) { 
+	attenuationLoop[i]=0; 
+	all_TPS[i] = getParam('TPS'+i);
+}
+//console.log(all_TPS[1]); console.log(all_TPS[2]); console.log(all_TPS[3]); console.log(all_TPS[4]);
+
 //var allParamaters = [ 'TEMP_FAN', 'TEMP_ATTENUATION', 'ATTENUATION_SCALE', 'CHECK_PERIOD', 'TPS', 'NB_RAMPES', 'SERVER_PORT', 'ON', 'OFF', 'DEBUG', 'LOG' ];
 //End const -----------------------------------------------
 
@@ -71,7 +77,9 @@ var gpioRelay = [];
 for (i=1; i<=NB_RAMPES; i++) {
 	if (DEBUG) { console.log("init gpioRelay "+i); }
 	gpioRelay[i-1] = new Gpio(i+10, 'out');     // Export GPIO #11-18 as an output for Relay Fan
-	gpioRelay[i-1].writeSync(OFF);				//set off
+/* plante demarrage si pas branche
+  	gpioRelay[i-1].writeSync(OFF);				//set off
+*/
 }
 
 //Raspberry ServoPi
@@ -226,7 +234,7 @@ function manageWebParametersSave(socket) {
 		setParam( "TEMP_ATTENUATION", TEMP_ATTENUATION );
 		setParam( "ATTENUATION_SCALE", ATTENUATION_SCALE );
 		setParam( "CHECK_PERIOD", CHECK_PERIOD );
-		setParam( "TPS", TPS );
+		//setParam( "TPS", TPS );
 		setParam( "NB_RAMPES", NB_RAMPES );
 		setParam( "SERVER_PORT", SERVER_PORT );
 		setParam( "ON", ON );
@@ -295,7 +303,7 @@ function manageWebRampeRatio(socket, num, ratio, rampeInfos) {
 //Begin main program--- -----------------------------------
 
 //get ratio pwm for 1 specific hour
-function getPwm(hour) {	
+function getPwm(hour,TPS) {	
 	if (LOG) { console.log("Looking for TP (" + hour + ") -----------------"); }
 	var rampe_pwm = { blue: -1, white: -1};
 	if ( !(TPS[0].hour < hour && hour < TPS[TPS.length-1].hour) ) {	//hour is in implicit period (night)
@@ -319,7 +327,7 @@ function getPwm(hour) {
 }
 
 //get TimePeriod of 1 specific hour
-function getTP(hour) {	
+function getTP(hour,TPS) {	
 	if (DEBUG) { console.log("Looking for TP (" + hour + ") -----------------"); }
 	var tp = {}
 	if ( !(TPS[0].hour < hour && hour < TPS[TPS.length-1].hour) ) {	//hour is in implicit period (night)
@@ -394,11 +402,14 @@ function manageAutoAllRampes() {
 	var now = new Date();
 	now_hour = dateFormat(now, "HH:MM");
 
-	var ratio = getPwm( now_hour );		//check Time Period Ratio
-	var tp = getTP( now_hour );			//check Time Period
-	if (DEBUG) { console.log('Ratio wanted',ratio); }
-
 	for (var i=1; i <= NB_RAMPES; i++) {		//8 rampes
+
+		//var ratio = getPwm( now_hour, TPS );		//check Time Period Ratio
+		var ratio = getPwm( now_hour, all_TPS[i] );		//check Time Period Ratio
+		//var tp = getTP( now_hour, TPS );			//check Time Period
+		var tp = getTP( now_hour, all_TPS[i] );			//check Time Period
+		if (DEBUG) { console.log('Ratio wanted',ratio); }
+
 		if (DEBUG) { console.log("Rampe n°"+i+"..............."); }
 		var relay = -1;
 		var attenuation = 0;

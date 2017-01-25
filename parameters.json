@@ -40,7 +40,7 @@
     "value": 1
   },
    {
-    "name": "TPS",
+    "name": "TPS1",
     "value": [
       {
         "hour": "09:00",
@@ -59,13 +59,133 @@
       },
       {
         "hour": "14:00",
-        "blue": 60,
-        "white": 60
+        "blue": 70,
+        "white": 70
       },
       {
         "hour": "18:00",
-        "blue": 60,
-        "white": 60
+        "blue": 70,
+        "white": 70
+      },
+      {
+        "hour": "23:00",
+        "blue": 10,
+        "white": 0
+      },
+      {
+        "hour": "24:00",
+        "blue": 0,
+        "white": 0
+      }
+    ]
+  },
+  {
+    "name": "TPS2",
+    "value": [
+      {
+        "hour": "09:00",
+        "blue": 0,
+        "white": 0
+      },
+      {
+        "hour": "11:00",
+        "blue": 10,
+        "white": 0
+      },
+      {
+        "hour": "12:00",
+        "blue": 20,
+        "white": 20
+      },
+      {
+        "hour": "14:00",
+        "blue": 70,
+        "white": 70
+      },
+      {
+        "hour": "18:00",
+        "blue": 70,
+        "white": 70
+      },
+      {
+        "hour": "23:00",
+        "blue": 10,
+        "white": 0
+      },
+      {
+        "hour": "24:00",
+        "blue": 0,
+        "white": 0
+      }
+    ]
+  },
+  {
+    "name": "TPS3",
+    "value": [
+      {
+        "hour": "09:00",
+        "blue": 0,
+        "white": 0
+      },
+      {
+        "hour": "11:00",
+        "blue": 10,
+        "white": 0
+      },
+      {
+        "hour": "12:00",
+        "blue": 20,
+        "white": 20
+      },
+      {
+        "hour": "14:00",
+        "blue": 40,
+        "white": 40
+      },
+      {
+        "hour": "18:00",
+        "blue": 40,
+        "white": 40
+      },
+      {
+        "hour": "23:00",
+        "blue": 10,
+        "white": 0
+      },
+      {
+        "hour": "24:00",
+        "blue": 0,
+        "white": 0
+      }
+    ]
+  },
+  {
+    "name": "TPS4",
+    "value": [
+      {
+        "hour": "09:00",
+        "blue": 0,
+        "white": 0
+      },
+      {
+        "hour": "11:00",
+        "blue": 10,
+        "white": 0
+      },
+      {
+        "hour": "12:00",
+        "blue": 20,
+        "white": 20
+      },
+      {
+        "hour": "14:00",
+        "blue": 100,
+        "white": 100
+      },
+      {
+        "hour": "18:00",
+        "blue": 100,
+        "white": 100
       },
       {
         "hour": "23:00",

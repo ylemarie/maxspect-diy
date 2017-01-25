@@ -16,7 +16,7 @@
   </head>
   <body>
   	<div id="header">
-    	<div id='infos'>xxx</div>
+    	<div id='infos'>Batterie</div>
     	<div id="menu">
     		<a href="parameters.html"><img id="parameters" src="parameters.png"></a>
     	</div>
@@ -98,7 +98,8 @@
 			socket.on('rampe'+num, function (data) {				
 				//temp
 				document.getElementById( "temp" + num ).innerHTML = data.temp + "°";
-				document.getElementById( "infos" ).innerHTML = data.infos;
+				//document.getElementById( "infos" ).innerHTML = data.infos;
+				document.getElementById( "infos" + num ).innerHTML = data.infos;
 				//relay
 				if ( data.relay == OFF ) {
 					document.getElementById( "relay" + num ).src = "fan-off.png";
@@ -122,17 +123,21 @@
 
 		//build 2 rampes 450L
 		document.write('<div><span class="titreBac">450L</span>');
+		document.write('<span id="infos1">xxx</span>');
 		buildSliderRampe(1); socketSlider(1); socketRampeInfos(1); socketSwitchRelay(1);
+		document.write('<span id="infos2">xxx</span>');		
 		buildSliderRampe(2); socketSlider(2); socketRampeInfos(2); socketSwitchRelay(2);
 		document.write('</div>');
 		
 		//build 1 rampe 200 L Milieu
 		document.write('<div><span class="titreBac">200L Milieu</span>');
+		document.write('<span id="infos3">xxx</span>');		
 		buildSliderRampe(3); socketSlider(3); socketRampeInfos(3); socketSwitchRelay(3);
 		document.write('</div>');
 
 		//build 1 rampe 200 L Haut
 		document.write('<div><span class="titreBac">200L Haut</span>');
+		document.write('<span id="infos4">xxx</span>');				
 		buildSliderRampe(4); socketSlider(4); socketRampeInfos(4); socketSwitchRelay(4);
 		document.write('</div>');
 	</script>
